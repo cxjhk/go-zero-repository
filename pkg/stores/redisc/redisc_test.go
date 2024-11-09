@@ -8,7 +8,7 @@ import (
 
 func TestNewEngine(t *testing.T) {
 	engine := NewEngine(Config{
-		Addr: "127.0.0.1:6379",
+		Addrs: []string{"127.0.0.1:6379"},
 	})
 
 	var (
