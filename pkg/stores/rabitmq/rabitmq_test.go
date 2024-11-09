@@ -26,6 +26,7 @@ func TestPublish(t *testing.T) {
 		//go func(i int) {
 		//	defer wg.Done()
 		err := publisher.Publish(
+			context.Background(),
 			[]byte(uuid.New().String()),
 			[]string{"my_routing_key"},
 			rabbitmq.WithPublishOptionsExchange("events"),

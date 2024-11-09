@@ -1,6 +1,7 @@
 package rabitmq
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
@@ -36,6 +37,7 @@ func NewPublisher(conn *rabbitmq.Conn, c PublisherConfig, optionFuncs ...func(*r
 }
 
 func (p *Publisher) Publish(
+	ctx context.Context,
 	data []byte,
 	routingKeys []string,
 	optionFuncs ...func(*rabbitmq.PublishOptions),
@@ -43,7 +45,7 @@ func (p *Publisher) Publish(
 	pool := p.pool.Get()
 	if publisher, ok := pool.(*rabbitmq.Publisher); ok {
 		defer p.pool.Put(pool)
-		return publisher.Publish(data, routingKeys, append(optionFuncs, func(options *rabbitmq.PublishOptions) {
+		return publisher.PublishWithContext(ctx, data, routingKeys, append(optionFuncs, func(options *rabbitmq.PublishOptions) {
 			options.MessageID = p.msgId(data)
 		})...)
 	}
