@@ -8,6 +8,9 @@ type Response {
 	Message string `json:"message"`
 }
 
+@server (
+	middleware: ErrMiddleware
+)
 service api-api {
 	@handler ApiHandler
 	get /from/:name (Request) returns (Response)

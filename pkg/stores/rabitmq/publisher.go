@@ -36,7 +36,7 @@ func NewPublisher(conn *rabbitmq.Conn, c PublisherConfig, optionFuncs ...func(*r
 	}
 }
 
-func (p *Publisher) Publish(
+func (p *Publisher) PublishWithContext(
 	ctx context.Context,
 	data []byte,
 	routingKeys []string,

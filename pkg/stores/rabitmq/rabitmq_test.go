@@ -3,9 +3,11 @@ package rabitmq
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/panjf2000/ants"
 	"github.com/wagslane/go-rabbitmq"
 	"go-zero-repository/pkg/stores/redisc"
 	"log"
+	"sync"
 	"testing"
 )
 
@@ -19,25 +21,28 @@ func TestPublish(t *testing.T) {
 		rabbitmq.WithPublisherOptionsExchangeDeclare,
 	)
 
-	var l = 10000
-	//var wg sync.WaitGroup
-	//wg.Add(l)
+	var l = 50000
+	var wg sync.WaitGroup
+	wg.Add(l)
+	var pool, _ = ants.NewPool(1000)
 	for i := 0; i < l; i++ {
-		//go func(i int) {
-		//	defer wg.Done()
-		err := publisher.Publish(
-			context.Background(),
-			[]byte(uuid.New().String()),
-			[]string{"my_routing_key"},
-			rabbitmq.WithPublishOptionsExchange("events"),
-			rabbitmq.WithPublishOptionsPersistentDelivery,
-		)
-		if err != nil {
-			log.Println(err)
-		}
-		//}(i)
+		pool.Submit(func() {
+			defer wg.Done()
+			err := publisher.PublishWithContext(
+				context.Background(),
+				[]byte(uuid.New().String()),
+				[]string{"my_routing_key"},
+				rabbitmq.WithPublishOptionsContentType("application/json"),
+				rabbitmq.WithPublishOptionsMandatory,
+				rabbitmq.WithPublishOptionsPersistentDelivery,
+				rabbitmq.WithPublishOptionsExchange("events"),
+			)
+			if err != nil {
+				log.Println(err)
+			}
+		})
 	}
-	//wg.Wait()
+	wg.Wait()
 }
 
 func TestConsumer(t *testing.T) {
@@ -47,7 +52,6 @@ func TestConsumer(t *testing.T) {
 		rabbitmq.WithConsumerOptionsRoutingKey("my_routing_key"),
 		rabbitmq.WithConsumerOptionsExchangeName("events"),
 		rabbitmq.WithConsumerOptionsExchangeDeclare,
-		rabbitmq.WithConsumerOptionsExchangeDurable,
 		rabbitmq.WithConsumerOptionsConcurrency(100),
 	)
 	if err != nil {
