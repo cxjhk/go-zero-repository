@@ -7,10 +7,18 @@ import (
 
 func NewEngine(c Config) redis.UniversalClient {
 	rdb := redis.NewUniversalClient(&redis.UniversalOptions{
-		Addrs: c.Addrs,
+		Addrs:      c.Addrs,
+		Username:   c.Username,
+		Password:   c.Password,
+		MasterName: c.MasterName,
 	})
+
 	if err := rdb.Ping(context.TODO()).Err(); err != nil {
 		panic(err)
+	}
+
+	if c.Debug { // debug
+		rdb.AddHook(DebugHook{})
 	}
 	return rdb
 }
