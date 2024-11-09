@@ -2,6 +2,7 @@ package rabitmq
 
 import (
 	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"github.com/wagslane/go-rabbitmq"
 	"github.com/zeromicro/go-zero/core/syncx"
@@ -52,5 +53,5 @@ func (p *Publisher) Publish(
 func (p *Publisher) msgId(data []byte) string {
 	md5hash := md5.New()
 	md5hash.Write(data)
-	return string(md5hash.Sum(nil))
+	return hex.EncodeToString(md5hash.Sum(nil))
 }
