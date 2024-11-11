@@ -1,9 +1,9 @@
 package etcd
 
 import (
-	"github.com/jinzhu/copier"
 	configurator "github.com/zeromicro/go-zero/core/configcenter"
 	"github.com/zeromicro/go-zero/core/configcenter/subscriber"
+	"github.com/zeromicro/go-zero/core/discov"
 )
 
 type Etcd[T any] struct {
@@ -11,14 +11,11 @@ type Etcd[T any] struct {
 	configurator configurator.Configurator[T]
 }
 
-func NewEtcd[T any](c Config) *Etcd[T] {
-	var cc subscriber.EtcdConf
-	_ = copier.Copy(&cc, &c)
+func NewEtcd[T any](c discov.EtcdConf) *Etcd[T] {
 	return &Etcd[T]{
-		c: c,
 		configurator: configurator.MustNewConfigCenter[T](configurator.Config{
 			Type: "json",
-		}, subscriber.MustNewEtcdSubscriber(cc)),
+		}, subscriber.MustNewEtcdSubscriber(c)),
 	}
 }
 

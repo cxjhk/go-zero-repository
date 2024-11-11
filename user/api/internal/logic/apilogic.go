@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-
 	"go-zero-repository/user/api/internal/svc"
 	"go-zero-repository/user/api/internal/types"
 
@@ -24,7 +23,5 @@ func NewApiLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ApiLogic {
 }
 
 func (l *ApiLogic) Api(req *types.Request) (resp *types.Response, err error) {
-	panic("测试异常")
-
 	return
 }

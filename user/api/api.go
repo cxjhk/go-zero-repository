@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-repository/pkg/etcd"
 
 	"go-zero-repository/user/api/internal/config"
 	"go-zero-repository/user/api/internal/handler"
@@ -20,6 +21,19 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+
+	ee := etcd.NewEtcd[config.TestConfig](c.Etcd)
+	var err error
+	c.TestConfig, err = ee.GetConfig()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(c.TestConfig.Name)
+	ee.Listener(func() {
+		fmt.Println(1111)
+		c.TestConfig, _ = ee.GetConfig()
+	})
 
 	// 关闭日志
 	logx.Disable()
